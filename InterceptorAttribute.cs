@@ -1,10 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace AopPoc;
 
 public abstract class InterceptorAttribute : Attribute
 {
+    private static readonly ConcurrentDictionary<Type, MethodInfo> _cachedInvokeMethods = [];
+
     internal void Invoke(InterceptionContext context)
     {
         var returnType = context.Invocation.Method.ReturnType;
@@ -28,7 +31,7 @@ public abstract class InterceptorAttribute : Attribute
         }
     }
 
-    public abstract Task InterceptAsync(InterceptionContext context);
+    public abstract Task InterceptAsync(IInterceptionContext context);
 
     private void TypedAsyncInvoke<TResult>(InterceptionContext context)
     {
@@ -44,7 +47,10 @@ public abstract class InterceptorAttribute : Attribute
 
     private static MethodInfo GetTypedAsyncMethod(Type returnType)
     {
-        return typeof(InterceptorAttribute).GetMethod(nameof(TypedAsyncInvoke), BindingFlags.NonPublic | BindingFlags.Instance)!
-            .MakeGenericMethod(returnType.GetGenericArguments()[0]);
+        Debug.Assert(returnType.IsAssignableTo(typeof(Task)) && returnType.IsGenericType);
+
+        return _cachedInvokeMethods.GetOrAdd(returnType, _ => typeof(InterceptorAttribute)
+            .GetMethod(nameof(TypedAsyncInvoke), BindingFlags.NonPublic | BindingFlags.Instance)!
+            .MakeGenericMethod(returnType.GetGenericArguments()[0]));
     }
 }

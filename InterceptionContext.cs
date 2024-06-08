@@ -2,13 +2,13 @@
 
 namespace AopPoc;
 
-public class InterceptionContext
+public class InterceptionContext : IInterceptionContext
 {
     internal IInvocation Invocation { get; }
 
     public required Func<Task> NextAsync { get; set; }
 
-    internal InterceptionContext(IInvocation invocation)
+    public InterceptionContext(IInvocation invocation)
     {
         Invocation = invocation;
     }
