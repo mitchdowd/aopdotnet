@@ -12,9 +12,16 @@ internal class AttributeInterceptorHandler : IInterceptor, IProxyGenerationHook
 
         Debug.Assert(attribute is not null);
 
+        var proceed = invocation.CaptureProceedInfo();
+
         attribute.Invoke(new InterceptionContext(invocation)
         {
-            Next = () => ProceedAsync(invocation)
+            NextAsync = async () => {
+                proceed.Invoke();
+
+                if (invocation.ReturnValue is Task task)
+                    await task;
+            }
         });
     }
 
@@ -24,21 +31,4 @@ internal class AttributeInterceptorHandler : IInterceptor, IProxyGenerationHook
     public void NonProxyableMemberNotification(Type type, MemberInfo memberInfo) {}
 
     public void MethodsInspected() {}
-
-    private static async Task ProceedAsync(IInvocation invocation)
-    {
-        invocation.Proceed();
-
-        if (invocation.ReturnValue is Task task)
-        {
-            await task;
-
-            if (task.GetType().IsGenericType)
-            {
-                invocation.ReturnValue = task.GetType()
-                    .GetProperty(nameof(Task<object>.Result))!
-                    .GetValue(task);
-            }
-        }
-    }
 }

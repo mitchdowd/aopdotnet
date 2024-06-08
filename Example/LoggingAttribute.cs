@@ -10,11 +10,11 @@ public class LoggingAttribute : InterceptorAttribute
         _name = name;
     }
 
-    public override async Task Intercept(IInterceptionContext context)
+    public override async Task InterceptAsync(InterceptionContext context)
     {
         Console.WriteLine($"Before method call: {_name}");
         await Task.Delay(100);
-        await context.Next();
+        await context.NextAsync();
         await Task.Delay(100);
         Console.WriteLine($"After method call: {_name}");
     }

@@ -2,5 +2,5 @@
 
 public interface IExampleService
 {
-    Task<int> DoSomething();
+    Task<int> DoSomethingAsync();
 }

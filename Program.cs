@@ -10,7 +10,7 @@ public class Program
 
         var service = interceptor.Intercept(new ExampleService());
 
-        var result = await service.DoSomething();
+        var result = await service.DoSomethingAsync();
 
         Console.WriteLine($"Result: {result}");
     }
