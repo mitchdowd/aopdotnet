@@ -13,9 +13,9 @@ public class LoggingAttribute : InterceptorAttribute
     public override async Task InterceptAsync(IInterceptionContext context)
     {
         Console.WriteLine($"Before method call: {_name}");
-        await Task.Delay(100);
+        await Task.Delay(1000);
         await context.NextAsync();
-        await Task.Delay(100);
+        await Task.Delay(1000);
         Console.WriteLine($"After method call: {_name}");
     }
 }

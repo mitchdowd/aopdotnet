@@ -3,6 +3,7 @@
 public class ExampleService : IExampleService
 {
     [Logging("First")]
+    [Logging("Second")]
     public virtual async Task<int> DoSomethingAsync()
     {
         Console.Write("Doing something");

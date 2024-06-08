@@ -2,5 +2,5 @@
 
 public interface IInterceptionContext
 {
-    Func<Task> NextAsync { get; }
+    Task NextAsync();
 }

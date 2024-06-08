@@ -8,21 +8,12 @@ internal class AttributeInterceptorHandler : IInterceptor, IProxyGenerationHook
 {
     public void Intercept(IInvocation invocation)
     {
-        var attribute = invocation.Method.GetCustomAttribute<InterceptorAttribute>();
+        var attributes = invocation.Method.GetCustomAttributes<InterceptorAttribute>();
 
-        Debug.Assert(attribute is not null);
+        Debug.Assert(attributes.Any());
 
-        var proceed = invocation.CaptureProceedInfo();
-
-        attribute.Invoke(new InterceptionContext(invocation)
-        {
-            NextAsync = async () => {
-                proceed.Invoke();
-
-                if (invocation.ReturnValue is Task task)
-                    await task;
-            }
-        });
+        var context = new InterceptionContext(invocation, attributes);
+        context.InvokeStack();
     }
 
     public bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
